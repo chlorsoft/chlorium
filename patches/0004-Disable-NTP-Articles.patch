@@ -1,0 +1,25 @@
+From 70df272af4ec176a180904d43ce0691764d2c092 Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Thu, 13 Sep 2018 20:35:29 +1000
+Subject: [PATCH 4/6] Disable NTP Articles
+
+---
+ components/ntp_snippets/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/ntp_snippets/features.cc b/components/ntp_snippets/features.cc
+index b3db200cf94f..d7a9911b1e69 100644
+--- a/components/ntp_snippets/features.cc
++++ b/components/ntp_snippets/features.cc
+@@ -38,7 +38,7 @@ const base::Feature kArticleSuggestionsExpandableHeader{
+     "NTPArticleSuggestionsExpandableHeader", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kArticleSuggestionsFeature{
+-    "NTPArticleSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
++    "NTPArticleSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kBookmarkSuggestionsFeature{
+     "NTPBookmarkSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
+-- 
+2.18.0
+

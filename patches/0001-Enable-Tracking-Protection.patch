@@ -1,0 +1,337 @@
+From 8edd29ba1c76fc6390e20450be952491b93ec41f Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Tue, 11 Sep 2018 21:44:55 +1000
+Subject: [PATCH 1/6] Enable Tracking Protection
+
+---
+ .../java/res/menu/custom_tabs_menu.xml        | 12 ++++
+ chrome/android/java/res/menu/main_menu.xml    | 12 ++++
+ .../chrome/browser/ChromeActivity.java        |  8 +++
+ .../chrome/browser/ChromeTabbedActivity.java  |  8 +++
+ .../appmenu/AppMenuPropertiesDelegate.java    | 41 ++++++++++++-
+ .../CustomTabAppMenuPropertiesDelegate.java   |  2 +
+ .../java/strings/android_chrome_strings.grd   | 11 ++++
+ chrome/browser/net/chrome_network_delegate.cc | 58 +++++++++++++++++++
+ ...esource_filter_content_settings_manager.cc |  1 +
+ net/BUILD.gn                                  |  7 +++
+ 10 files changed, 159 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/res/menu/custom_tabs_menu.xml b/chrome/android/java/res/menu/custom_tabs_menu.xml
+index 0f6292862550..bd112aa9ea11 100644
+--- a/chrome/android/java/res/menu/custom_tabs_menu.xml
++++ b/chrome/android/java/res/menu/custom_tabs_menu.xml
+@@ -61,6 +61,18 @@
+           </menu>
+         </item>
+ 
++        <item android:id="@+id/enable_tpfilter_row_menu_id"
++            android:title="@null"
++            android:orderInCategory="2">
++          <menu>
++              <item android:id="@+id/enable_tpfilter_id"
++                  android:title="@string/menu_enable_tpfilter" />
++              <item android:id="@+id/enable_tpfilter_check_id"
++                  android:title="@null"
++                  android:checkable="true" />
++          </menu>
++        </item>
++
+         <!-- Title is intentionally left blank in xml and will be set in java. -->
+         <item android:id="@+id/open_in_browser_id"
+             android:title=""
+diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
+index 3b5aa0e35b58..8753f02dc2d2 100644
+--- a/chrome/android/java/res/menu/main_menu.xml
++++ b/chrome/android/java/res/menu/main_menu.xml
+@@ -69,6 +69,18 @@
+                 android:checkable="true" />
+           </menu>
+         </item>
++
++        <item android:id="@+id/enable_tpfilter_row_menu_id"
++            android:title="@null">
++          <menu>
++              <item android:id="@+id/enable_tpfilter_id"
++                  android:title="@string/menu_enable_tpfilter" />
++              <item android:id="@+id/enable_tpfilter_check_id"
++                  android:title="@null"
++                  android:checkable="true" />
++          </menu>
++        </item>
++
+         <item android:id="@+id/reader_mode_prefs_id"
+             android:title="@string/menu_reader_mode_prefs"
+             android:icon="@drawable/reader_mode_prefs_icon" />
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
+index 1c13a61eec22..789c37ea2d4f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
+@@ -2121,6 +2121,14 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
+             RecordUserAction.record("MobileMenuRequestDesktopSite");
+         } else if (id == R.id.reader_mode_prefs_id) {
+             DomDistillerUIUtils.openSettings(currentTab.getWebContents());
++        } else if (id == R.id.enable_tpfilter_id || id == R.id.enable_tpfilter_check_id) {
++            final boolean reloadOnChange = !currentTab.isNativePage();
++            final boolean TPFilterEnabled = !PrefServiceBridge.getInstance().isCategoryEnabled(ContentSettingsType.CONTENT_SETTINGS_TYPE_ADS);
++            PrefServiceBridge.getInstance().setCategoryEnabled(ContentSettingsType.CONTENT_SETTINGS_TYPE_ADS, TPFilterEnabled);
++            if (reloadOnChange) {
++                currentTab.reload();
++            }
++            RecordUserAction.record("MobileMenuRequestEnableTPFilter");
+         } else {
+             return false;
+         }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index f41dc7c5a09d..f24d69b097b1 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1665,6 +1665,14 @@ public class ChromeTabbedActivity
+                 reportNewTabShortcutUsed(true);
+                 getTabCreator(true).launchNTP();
+             }
++        } else if (id == R.id.enable_tpfilter_id || id == R.id.enable_tpfilter_check_id) {
++            final boolean reloadOnChange = !currentTab.isNativePage();
++            final boolean TPFilterEnabled = !PrefServiceBridge.getInstance().isCategoryEnabled(ContentSettingsType.CONTENT_SETTINGS_TYPE_ADS);
++            PrefServiceBridge.getInstance().setCategoryEnabled(ContentSettingsType.CONTENT_SETTINGS_TYPE_ADS, TPFilterEnabled);
++            if (reloadOnChange) {
++                currentTab.reload();
++            }
++            RecordUserAction.record("MobileMenuRequestEnableTPFilter");
+         } else if (id == R.id.all_bookmarks_menu_id) {
+             if (currentTab != null) {
+                 getCompositorViewHolder().hideKeyboard(() -> {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/appmenu/AppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/appmenu/AppMenuPropertiesDelegate.java
+index b89620b25fbf..9eb0adbc2c42 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/appmenu/AppMenuPropertiesDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/appmenu/AppMenuPropertiesDelegate.java
+@@ -16,7 +16,7 @@ import android.view.Menu;
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.view.View.OnClickListener;
+-
++import org.chromium.chrome.browser.ContentSettingsType;
+ import org.chromium.base.ApiCompatibilityUtils;
+ import org.chromium.base.CommandLine;
+ import org.chromium.base.ContextUtils;
+@@ -24,6 +24,7 @@ import org.chromium.base.metrics.RecordHistogram;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.ChromeActivity;
+ import org.chromium.chrome.browser.ChromeSwitches;
++
+ import org.chromium.chrome.browser.ShortcutHelper;
+ import org.chromium.chrome.browser.UrlConstants;
+ import org.chromium.chrome.browser.banners.AppBannerManager;
+@@ -194,6 +195,8 @@ public class AppMenuPropertiesDelegate {
+                     && !TextUtils.isEmpty(url);
+             prepareAddToHomescreenMenuItem(menu, currentTab, canShowHomeScreenMenuItem);
+ 
++            updateEnableTPFilterMenuItem(menu, currentTab);
++
+             updateRequestDesktopSiteMenuItem(menu, currentTab, true /* can show */);
+ 
+             // Only display reader mode settings menu option if the current page is in reader mode.
+@@ -383,6 +386,42 @@ public class AppMenuPropertiesDelegate {
+         }
+     }
+ 
++    /**
++     * Updates the enable TPFilter item's state.
++     *
++     * @param menu {@link Menu} for enable tpfilter
++     * @param currentTab      Current tab being displayed.
++     */
++    protected void updateEnableTPFilterMenuItem(
++            Menu menu, Tab currentTab) {
++        MenuItem enableMenuRow = menu.findItem(R.id.enable_tpfilter_row_menu_id);
++        MenuItem enableMenuLabel = menu.findItem(R.id.enable_tpfilter_id);
++        MenuItem enableMenuCheck = menu.findItem(R.id.enable_tpfilter_check_id);
++
++
++        // Hide enable TP option on all chrome:// pages except for the NTP.
++        String url = currentTab.getUrl();
++        boolean isChromeScheme = url.startsWith(UrlConstants.CHROME_URL_PREFIX)
++                || url.startsWith(UrlConstants.CHROME_NATIVE_URL_PREFIX);
++        // Also hide enable javascsript on Reader Mode.
++        boolean isDistilledPage = DomDistillerUrlUtils.isDistilledPage(url);
++
++        boolean itemVisible = (!isChromeScheme || currentTab.isNativePage()) && !isDistilledPage;
++        enableMenuRow.setVisible(itemVisible);
++        if (!itemVisible) return;
++
++        boolean TPFilterEnabled = !PrefServiceBridge.getInstance().isCategoryEnabled(ContentSettingsType.CONTENT_SETTINGS_TYPE_ADS);
++
++        // Mark the checkbox if tpfilter is globally activated.
++        enableMenuCheck.setChecked(TPFilterEnabled);
++
++        // This title doesn't seem to be displayed by Android, but it is used to set up
++        // accessibility text in {@link AppMenuAdapter#setupMenuButton}.
++        enableMenuLabel.setTitleCondensed(TPFilterEnabled
++                        ? mActivity.getString(R.string.menu_enable_tpfilter_on)
++                        : mActivity.getString(R.string.menu_enable_tpfilter_off));
++    }
++
+     /**
+      * Updates the request desktop site item's state.
+      *
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
+index 598c5a579b26..acd07a9207e3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
+@@ -164,6 +164,8 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
+                 }
+             }
+ 
++            updateEnableTPFilterMenuItem(menu, currentTab);
++
+             updateRequestDesktopSiteMenuItem(menu, currentTab, requestDesktopSiteVisible);
+             prepareAddToHomescreenMenuItem(menu, currentTab, addToHomeScreenVisible);
+         }
+diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
+index c1b8c0e0a052..460a35962a70 100644
+--- a/chrome/android/java/strings/android_chrome_strings.grd
++++ b/chrome/android/java/strings/android_chrome_strings.grd
+@@ -2831,6 +2831,17 @@ To obtain new licenses, connect to the internet and play your downloaded content
+       <message name="IDS_MENU_REQUEST_DESKTOP_SITE_OFF" desc="Accessibility description for when Request Desktop Site is disabled.">
+         Turn on Request desktop site
+       </message>
++
++      <message name="IDS_MENU_ENABLE_TPFILTER" desc="Menu item in Chrome's overflow/options menu. If this menu item is unselected, Chlorium will disable Tracking Protection for the page. [CHAR-LIMIT=27]">
++        Tracking Protection
++      </message>
++      <message name="IDS_MENU_ENABLE_TPFILTER_ON" desc="Accessibility description for when Tracking Protection is selected.">
++        Turn off Tracking Protection
++      </message>
++      <message name="IDS_MENU_ENABLE_TPFILTER_OFF" desc="Accessibility description for when Tracking Protection is unselected.">
++        Turn on Tracking Protection
++      </message>
++
+       <message name="IDS_MENU_READER_MODE_PREFS" desc="Menu item to show reader mode preferences pane, which allows users to change the appearance (font size, theme, etc.) of the page. [CHAR-LIMIT=27]">
+         Appearance
+       </message>
+diff --git a/chrome/browser/net/chrome_network_delegate.cc b/chrome/browser/net/chrome_network_delegate.cc
+index f5122732bb24..60b528ed800a 100644
+--- a/chrome/browser/net/chrome_network_delegate.cc
++++ b/chrome/browser/net/chrome_network_delegate.cc
+@@ -24,6 +24,7 @@
+ #include "build/build_config.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/content_settings/cookie_settings_factory.h"
++#include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+ #include "chrome/browser/content_settings/tab_specific_content_settings.h"
+ #include "chrome/browser/custom_handlers/protocol_handler_registry.h"
+ #include "chrome/browser/net/chrome_extensions_network_delegate.h"
+@@ -59,6 +60,7 @@
+ #if defined(OS_ANDROID)
+ #include "base/android/path_utils.h"
+ #include "chrome/browser/io_thread.h"
++#include "net/url_request/tpfilter_intercept.h"
+ #endif
+ 
+ #if defined(OS_CHROMEOS)
+@@ -215,10 +217,64 @@ void ChromeNetworkDelegate::InitializePrefsOnUIThread(
+   }
+ }
+ 
++#define TRANSPARENT1PXGIF "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
++
+ int ChromeNetworkDelegate::OnBeforeURLRequest(
+     net::URLRequest* request,
+     net::CompletionOnceCallback callback,
+     GURL* new_url) {
++
++#if defined(OS_ANDROID)
++  if (request) {
++    bool block = false, isValidUrl;
++
++    isValidUrl = request->url().is_valid();
++    std::string scheme = request->url().scheme();
++    if (isValidUrl && scheme.length()) {
++      std::transform(scheme.begin(), scheme.end(), scheme.begin(), ::tolower);
++        if ("http" != scheme && "https" != scheme) {
++          isValidUrl = false;
++        }
++    }
++    const ResourceRequestInfo* info = ResourceRequestInfo::ForRequest(request);
++
++    bool tpfilter_enabled = false;
++    if (isValidUrl && info) {
++      const content::ResourceRequestInfo::WebContentsGetter& web_contents_getter = info->GetWebContentsGetterForRequest();
++      content::WebContents* web_contents = web_contents_getter.Run();
++      if (web_contents) {
++        Profile* profile = Profile::FromBrowserContext(web_contents->GetBrowserContext());
++        const HostContentSettingsMap* content_settings = HostContentSettingsMapFactory::GetForProfile(profile);
++
++        // check global value first
++        tpfilter_enabled = CONTENT_SETTING_BLOCK == content_settings->GetDefaultContentSetting(ContentSettingsType::CONTENT_SETTINGS_TYPE_ADS, NULL);
++
++        if (!tpfilter_enabled) {
++          tpfilter_enabled = CONTENT_SETTING_BLOCK == content_settings->GetContentSetting(request->url(), GURL(), ContentSettingsType::CONTENT_SETTINGS_TYPE_ADS,
++                                                             std::string());
++        }
++      }
++
++      if (tpfilter_enabled
++        && content::RESOURCE_TYPE_MAIN_FRAME != info->GetResourceType()
++        && net::tpfilter_intercept(request->url(),
++                                request->initiator()->host(),
++                                info->GetResourceType())) {
++        block = true;
++      }
++
++      if (block) {
++        if (content::RESOURCE_TYPE_IMAGE == info->GetResourceType()) {
++          *new_url = GURL(TRANSPARENT1PXGIF);
++        } else {
++          *new_url = GURL("");
++        }
++        return net::ERR_BLOCKED_BY_ADMINISTRATOR;
++      }
++    } // valid URL and info
++  } // request
++#endif // OS_ANDROID
++
+   extensions_delegate_->ForwardStartRequestStatus(request);
+ 
+   bool force_safe_search =
+@@ -248,6 +304,8 @@ int ChromeNetworkDelegate::OnBeforeURLRequest(
+   return rv;
+ }
+ 
++#undef TRANSPARENT1PXGIF
++
+ int ChromeNetworkDelegate::OnBeforeStartTransaction(
+     net::URLRequest* request,
+     net::CompletionOnceCallback callback,
+diff --git a/chrome/browser/subresource_filter/subresource_filter_content_settings_manager.cc b/chrome/browser/subresource_filter/subresource_filter_content_settings_manager.cc
+index 22c24e2b5d7d..a4cd8b8ffded 100644
+--- a/chrome/browser/subresource_filter/subresource_filter_content_settings_manager.cc
++++ b/chrome/browser/subresource_filter/subresource_filter_content_settings_manager.cc
+@@ -19,6 +19,7 @@
+ #include "components/history/core/browser/history_service.h"
+ #include "components/keyed_service/core/service_access_type.h"
+ #include "url/gurl.h"
++#include "net/url_request/tpfilter_intercept.h"
+ 
+ namespace {
+ 
+diff --git a/net/BUILD.gn b/net/BUILD.gn
+index 7f9901a8826c..a909b96da372 100644
+--- a/net/BUILD.gn
++++ b/net/BUILD.gn
+@@ -1715,6 +1715,13 @@ component("net") {
+       "url_request/websocket_handshake_userdata_key.h",
+     ]
+ 
++    if (is_android) {
++      sources += [
++        "url_request/tpfilter_intercept.cc",
++        "url_request/tpfilter_intercept.h"
++      ]
++    }
++
+     if (enable_reporting) {
+       sources += [
+         "network_error_logging/network_error_logging_delegate.cc",
+-- 
+2.18.0
+

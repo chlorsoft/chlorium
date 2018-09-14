@@ -1,0 +1,25 @@
+From d8e5db50c96f620dfa9abbde10e465b3f855455c Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Sat, 15 Sep 2018 08:36:03 +1000
+Subject: [PATCH 5/6] Enable Do Not Track by Default
+
+---
+ chrome/browser/ui/browser_ui_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
+index a6bf7f209345..6be191257b5e 100644
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -80,7 +80,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterDictionaryPref(prefs::kAppWindowPlacement);
+   registry->RegisterBooleanPref(
+       prefs::kEnableDoNotTrack,
+-      false,
++      true,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ #if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kPrintPreviewUseSystemDefaultPrinter,
+-- 
+2.18.0
+

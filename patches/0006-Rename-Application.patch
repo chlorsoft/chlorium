@@ -1,0 +1,41 @@
+From ef5cc0eab7162dc16c036a346b339cd1a57a68af Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Sat, 15 Sep 2018 08:39:05 +1000
+Subject: [PATCH 6/6] Rename Application
+
+---
+ chrome/android/BUILD.gn                                     | 2 +-
+ .../android/java/res_chromium/values/channel_constants.xml  | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 4b2238dbc4a1..3329b352aca0 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -22,7 +22,7 @@ import("channel.gni")
+ import("java_sources.gni")
+ import("static_initializers.gni")
+ 
+-manifest_package = "org.chromium.chrome"
++manifest_package = "org.chlorsoft.oxidan"
+ 
+ chrome_public_jinja_variables = default_chrome_public_jinja_variables +
+                                 [ "manifest_package=$manifest_package" ]
+diff --git a/chrome/android/java/res_chromium/values/channel_constants.xml b/chrome/android/java/res_chromium/values/channel_constants.xml
+index b7b3bfc29641..e64ed4c9c230 100644
+--- a/chrome/android/java/res_chromium/values/channel_constants.xml
++++ b/chrome/android/java/res_chromium/values/channel_constants.xml
+@@ -5,7 +5,7 @@
+ 
+ <resources xmlns:android="http://schemas.android.com/apk/res/android">
+     <!-- The application name displayed to the user. -->
+-    <string name="app_name" translatable="false">Chromium</string>
+-    <string name="bookmark_widget_title" translatable="false">Chromium bookmarks</string>
+-    <string name="search_widget_title" translatable="false">Chromium search</string>
++    <string name="app_name" translatable="false">Oxidan</string>
++    <string name="bookmark_widget_title" translatable="false">Oxidan bookmarks</string>
++    <string name="search_widget_title" translatable="false">Oxidan search</string>
+ </resources>
+-- 
+2.18.0
+
