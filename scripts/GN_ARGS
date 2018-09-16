@@ -6,7 +6,7 @@ target_os="android"
 target_cpu = "arm"
 
 #android_default_version_code = "1"
-android_default_version_name = "69.0.3497.76-1"
+android_default_version_name = "69.0.3497.91-1"
 
 # turning off symbols will make debugging almost impossible, but the build will be much faster. Otherwise, =1
 symbol_level=0
