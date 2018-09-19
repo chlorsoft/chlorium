@@ -10,3 +10,6 @@
 - Align default privacy-related features to Firefox while maintaining a balance with available Chrome features
 - Release as close as possible to current stable Chromium version to maintain a stable and consistent user experience and achieve closer alignment of bugs with upstream
 - Minimal code changes for features to lower chances of upstream conflicts and minimise ongoing maintenance
+
+## Credits
+- csagan5
