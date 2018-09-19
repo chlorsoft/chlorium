@@ -14,7 +14,7 @@
 ## Credits
 - The [Chromium](https://www.chromium.org/) project and developers
 - Special mention to [csagan5](https://github.com/csagan5) for his wonderful work on [Bromite](https://www.bromite.org/).
-- Oxidan's tracking protection filter was based on Bromite's adblock engine, however. Code to generate blocking rules was adapted from Mozilla's [shavar-list-creation](https://github.com/mozilla-services/shavar-list-creation) script.
+- Oxidan's tracking protection filter was based on Bromite's adblock engine. Code to generate blocking rules was adapted from Mozilla's [shavar-list-creation](https://github.com/mozilla-services/shavar-list-creation) script.
 - The team responsible for [Brave](https://brave.com/), in particular for their work on the [Android version](https://github.com/brave/browser-android-tabs) and associated documentation in their [Wiki](https://github.com/brave/browser-android-tabs/wiki).
 
 ## Licence
