@@ -1,7 +1,7 @@
-From 70df272af4ec176a180904d43ce0691764d2c092 Mon Sep 17 00:00:00 2001
+From 50633ead54168ee497eb73ad1cc4c6f3b49e1e7c Mon Sep 17 00:00:00 2001
 From: pceiley <pceiley@users.noreply.github.com>
 Date: Thu, 13 Sep 2018 20:35:29 +1000
-Subject: [PATCH 4/6] Disable NTP Articles
+Subject: [PATCH 4/7] Disable NTP Articles
 
 ---
  components/ntp_snippets/features.cc | 2 +-

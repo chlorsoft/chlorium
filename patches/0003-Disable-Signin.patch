@@ -1,7 +1,7 @@
-From 71ea2609148bb3e1f03e96ed5c94aa1e914ab699 Mon Sep 17 00:00:00 2001
+From a9a50f3045dbed876aa69c5710a07e2d5f01c50c Mon Sep 17 00:00:00 2001
 From: pceiley <pceiley@users.noreply.github.com>
 Date: Thu, 13 Sep 2018 20:32:23 +1000
-Subject: [PATCH 3/6] Disable Signin
+Subject: [PATCH 3/7] Disable Signin
 
 ---
  .../org/chromium/chrome/browser/signin/SigninManager.java    | 5 +++--

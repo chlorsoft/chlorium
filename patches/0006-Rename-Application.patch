@@ -1,7 +1,7 @@
-From ef5cc0eab7162dc16c036a346b339cd1a57a68af Mon Sep 17 00:00:00 2001
+From 8ca2a4325d213b47a44026324aaa57275762df83 Mon Sep 17 00:00:00 2001
 From: pceiley <pceiley@users.noreply.github.com>
 Date: Sat, 15 Sep 2018 08:39:05 +1000
-Subject: [PATCH 6/6] Rename Application
+Subject: [PATCH 6/7] Rename Application
 
 ---
  chrome/android/BUILD.gn                                     | 2 +-

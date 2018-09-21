@@ -6,14 +6,14 @@ target_os="android"
 target_cpu = "arm"
 
 #android_default_version_code = "1"
-android_default_version_name = "69.0.3497.91-1"
+android_default_version_name = "69.0.3497.100-2"
 
 # turning off symbols will make debugging almost impossible, but the build will be much faster. Otherwise, =1
 symbol_level=0
 
 # more debug switches
-#remove_webcore_debug_symbols=true
-#is_debug=false
+remove_webcore_debug_symbols=true
+is_debug=false
 is_official_build=true
 
 # otherwise a red frame will appear

@@ -1,7 +1,7 @@
-From d8e5db50c96f620dfa9abbde10e465b3f855455c Mon Sep 17 00:00:00 2001
+From 57923789d1f5657a38e1d2d4537d7150485c6820 Mon Sep 17 00:00:00 2001
 From: pceiley <pceiley@users.noreply.github.com>
 Date: Sat, 15 Sep 2018 08:36:03 +1000
-Subject: [PATCH 5/6] Enable Do Not Track by Default
+Subject: [PATCH 5/7] Enable Do Not Track by Default
 
 ---
  chrome/browser/ui/browser_ui_prefs.cc | 2 +-

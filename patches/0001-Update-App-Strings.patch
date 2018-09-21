@@ -1,0 +1,52 @@
+From 00669518cde8c92768bcef7ff76b915ace216f67 Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Thu, 20 Sep 2018 14:14:43 +1000
+Subject: [PATCH 1/7] Update App Strings
+
+---
+ .../java/strings/android_chrome_strings.grd       | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
+index c1b8c0e0a052..4e01c54d1763 100644
+--- a/chrome/android/java/strings/android_chrome_strings.grd
++++ b/chrome/android/java/strings/android_chrome_strings.grd
+@@ -1359,7 +1359,7 @@ To obtain new licenses, connect to the internet and play your downloaded content
+ 
+       <!-- About Chrome preferences -->
+       <message name="IDS_PREFS_ABOUT_CHROME" desc="Title for the About Chrome page. [CHAR-LIMIT=32]">
+-        About Chrome
++        About Oxidan
+       </message>
+       <message name="IDS_LEGAL_INFORMATION_SUMMARY" desc="Summary for legal information" meaning="Android">
+         Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google Inc. All rights reserved.
+@@ -1418,7 +1418,7 @@ To obtain new licenses, connect to the internet and play your downloaded content
+       </message>
+ 
+       <message name="IDS_POWERED_BY_CHROME_MESSAGE" desc="A message indicating that the current page is running in Chrome.">
+-        Powered by Chrome
++        Powered by Oxidan
+       </message>
+ 
+       <!-- Sync strings in account management dialog -->
+@@ -2831,6 +2831,17 @@ To obtain new licenses, connect to the internet and play your downloaded content
+       <message name="IDS_MENU_REQUEST_DESKTOP_SITE_OFF" desc="Accessibility description for when Request Desktop Site is disabled.">
+         Turn on Request desktop site
+       </message>
++
++      <message name="IDS_MENU_ENABLE_TPFILTER" desc="Menu item in Chrome's overflow/options menu. If this menu item is unselected, Oxidan will disable Tracking Protection for the page. [CHAR-LIMIT=27]">
++        Tracking Protection
++      </message>
++      <message name="IDS_MENU_ENABLE_TPFILTER_ON" desc="Accessibility description for when Tracking Protection is selected.">
++        Turn off Tracking Protection
++      </message>
++      <message name="IDS_MENU_ENABLE_TPFILTER_OFF" desc="Accessibility description for when Tracking Protection is unselected.">
++        Turn on Tracking Protection
++      </message>
++
+       <message name="IDS_MENU_READER_MODE_PREFS" desc="Menu item to show reader mode preferences pane, which allows users to change the appearance (font size, theme, etc.) of the page. [CHAR-LIMIT=27]">
+         Appearance
+       </message>
+-- 
+2.18.0
+

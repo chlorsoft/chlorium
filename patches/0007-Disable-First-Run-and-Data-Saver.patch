@@ -1,0 +1,106 @@
+From cb1c0b676dfca693ae0e5852da22b2264d346118 Mon Sep 17 00:00:00 2001
+From: pceiley <pceiley@users.noreply.github.com>
+Date: Fri, 21 Sep 2018 09:53:02 +1000
+Subject: [PATCH 7/7] Disable First Run and Data Saver
+
+---
+ .../chrome/browser/firstrun/FirstRunFlowSequencer.java   | 8 ++++++++
+ .../chrome/browser/firstrun/FirstRunSignInProcessor.java | 6 ++++++
+ .../net/spdyproxy/DataReductionProxySettings.java        | 9 ++++++---
+ 3 files changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java
+index af7feb746157..c2e175f8c626 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java
+@@ -80,6 +80,7 @@ public abstract class FirstRunFlowSequencer  {
+      * Once finished, calls onFlowIsKnown().
+      */
+     public void start() {
++        /*
+         if (CommandLine.getInstance().hasSwitch(ChromeSwitches.DISABLE_FIRST_RUN_EXPERIENCE)
+                 || ApiCompatibilityUtils.isDemoUser(mActivity)) {
+             onFlowIsKnown(null);
+@@ -93,6 +94,9 @@ public abstract class FirstRunFlowSequencer  {
+                 processFreEnvironmentPreNative();
+             }
+         }.start();
++        */
++        onFlowIsKnown(null);
++        return;
+     }
+ 
+     @VisibleForTesting
+@@ -244,6 +248,7 @@ public abstract class FirstRunFlowSequencer  {
+     public static boolean checkIfFirstRunIsNecessary(
+             Context context, Intent fromIntent, boolean preferLightweightFre) {
+         // If FRE is disabled (e.g. in tests), proceed directly to the intent handling.
++        /*
+         if (CommandLine.getInstance().hasSwitch(ChromeSwitches.DISABLE_FIRST_RUN_EXPERIENCE)
+                 || ApiCompatibilityUtils.isDemoUser(context)) {
+             return false;
+@@ -263,6 +268,9 @@ public abstract class FirstRunFlowSequencer  {
+         return !preferLightweightFre
+                 || (!FirstRunStatus.shouldSkipWelcomePage()
+                            && !FirstRunStatus.getLightweightFirstRunFlowComplete());
++        */
++
++        return false;
+     }
+ 
+     /**
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunSignInProcessor.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunSignInProcessor.java
+index d404a34812d5..52510a8d9249 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunSignInProcessor.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunSignInProcessor.java
+@@ -58,6 +58,7 @@ public final class FirstRunSignInProcessor {
+         // We skip signin and the FRE if
+         // - FRE is disabled, or
+         // - FRE hasn't been completed, but the user has already seen the ToS in the Setup Wizard.
++        /*
+         if (CommandLine.getInstance().hasSwitch(ChromeSwitches.DISABLE_FIRST_RUN_EXPERIENCE)
+                 || ApiCompatibilityUtils.isDemoUser(activity)
+                 || (!firstRunFlowComplete && ToSAckedReceiver.checkAnyUserHasSeenToS())) {
+@@ -99,6 +100,11 @@ public final class FirstRunSignInProcessor {
+                 setFirstRunFlowSignInComplete(true);
+             }
+         });
++        */
++        if (!firstRunFlowComplete) {
++            FirstRunStatus.setFirstRunFlowComplete(true);
++            return;
++        }
+     }
+ 
+     /**
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/net/spdyproxy/DataReductionProxySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/net/spdyproxy/DataReductionProxySettings.java
+index 9200705df333..c8e87a7353c8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/net/spdyproxy/DataReductionProxySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/net/spdyproxy/DataReductionProxySettings.java
+@@ -154,17 +154,20 @@ public class DataReductionProxySettings {
+ 
+     /** Returns true if the SPDY proxy promo is allowed to be shown. */
+     public boolean isDataReductionProxyPromoAllowed() {
+-        return nativeIsDataReductionProxyPromoAllowed(mNativeDataReductionProxySettings);
++        //return nativeIsDataReductionProxyPromoAllowed(mNativeDataReductionProxySettings);
++	return false;
+     }
+ 
+     /** Returns true if the data saver proxy promo is allowed to be shown as part of FRE. */
+     public boolean isDataReductionProxyFREPromoAllowed() {
+-        return nativeIsDataReductionProxyFREPromoAllowed(mNativeDataReductionProxySettings);
++        //return nativeIsDataReductionProxyFREPromoAllowed(mNativeDataReductionProxySettings);
++	return false;
+     }
+ 
+     /** Returns true if the snackbar promo is allowed to be shown. */
+     public boolean isSnackbarPromoAllowed(String url) {
+-        return url.startsWith(UrlConstants.HTTP_URL_PREFIX) && isDataReductionProxyEnabled();
++        //return url.startsWith(UrlConstants.HTTP_URL_PREFIX) && isDataReductionProxyEnabled();
++	return false;
+     }
+ 
+     /**
+-- 
+2.18.0
+
